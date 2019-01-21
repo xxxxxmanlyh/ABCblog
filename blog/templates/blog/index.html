@@ -1,0 +1,81 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}资料列表{% endblock %}
+
+{% block content %}
+      <div class="row">
+
+        <!-- Blog Entries Column -->
+        <div class="col-md-8">
+
+          <h1 class="my-4">
+            <br />
+          </h1>
+
+          <!-- Blog Post -->
+          <div class="card mb-4">
+          {% for entry in entry_list %}
+            {% if entry.img %}
+            <img class="card-img-top" src="{{ entry.img.url }}" alt="Card image cap">
+              {% endif %}
+            <div class="card-body">
+              <h2 class="card-title"><a href="{{ entry.get_absolute_url }}"></a>{{ entry.title }}</h2>
+              <p class="card-text">
+                  {% if entry.abstract %}
+                      {{ entry.abstract }}
+                    {% else %}
+                    {{ entry.body|truncatechars:32 }}
+                  {% endif %}
+              </p>
+              <a href="{{ entry.get_absolute_url }}" class="btn btn-primary">点击阅读 &rarr;</a>
+            </div>
+            <div class="card-footer text-muted">
+              本文是{{ entry.author }}在{{ entry.created_time }}发布于
+              <a href="abchelper.cc">ABC助手</a>
+            </div>
+              <br />
+              <br />
+          {% endfor %}
+          </div>
+          <!-- Pagination -->
+          <ul class="pagination justify-content-center mb-4">
+              {%  if entry_list.has_previous %}
+                    <li class="page-item"><a  class="page-link" href="?page={{ entry_list.previous_page_number }}"><i class="glyphicon glyphicon-chevron-left"></i>前一页</a></li>
+                {% endif %}
+
+                {% if first %}
+                    <li class="page-item"><a class="page-link" href="?page=1">1</a></li>
+                {% endif %}
+
+                {% if left %}
+                    {% if left_has_more %}
+                        <span>...</span>
+                    {% endif %}
+
+                    {% for i in left %}
+                        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                    {% endfor %}
+                {% endif %}
+            <li class="active page-link"><a href="?page={{ entry_list.number }}">{{ entry_list.number }}</a></li>
+              {% if right %}
+                        {% for i in right %}
+                            <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                        {% endfor %}
+
+                        {% if right_has_more %}
+                            <span>...</span>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if last %}
+                        <li class="page-item"><a class="page-link" href="?page={{ entry_list.num_pages }}">{{ entry_list.num_pages }}</a></li>
+                    {% endif %}
+
+                    {% if entry_list.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ entry_list.next_page_number }}">下一页<i class="glyphicon glyphicon-chevron-right"></i></a></li>
+                    {% endif %}
+          </ul>
+
+        </div>
+      {% include 'blog/right_side_bar.html'%}
+{% endblock %}

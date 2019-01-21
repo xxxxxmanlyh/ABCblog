@@ -1,0 +1,63 @@
+{% extends 'blog/base.html' %}
+{% load comments %}
+{% block title %}回复评论{% endblock %}
+
+{% block content %}
+    <hr>
+  <!-- Single Comment -->
+<div class="media mb-4">
+{% if request.session.is_login %}
+    <img class="d-flex mr-3 rounded-circle" src="{{ parent_comment.user_img }}" alt="">
+{% else %}
+    <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+{% endif %}
+<div class="media-body">
+  <h5 class="mt-0">
+    {% if parent_comment.user_name %}
+        {{ parent_comment.user_name }}
+    {% else %}
+        {{ request.user }}
+    {% endif %}
+  <h6><em>在{{ parent_comment.submit_date }}评论</em></h6>
+  </h5>
+    {{ parent_comment.comment }}
+</div>
+</div>
+  <!-- Comments Form -->
+  {% if request.session.is_login%}
+    {% get_comment_form for parent_comment.content_object as form %}
+    <div class="card my-4">
+    <div class="card-body">
+      <form action="{% comment_form_target %}" method="post">
+          {% csrf_token %}
+        <div class="form-group">
+          <h3>
+              <label for="input_comment" class="pull-left control-label">回复&nbsp;
+              {% if parent_comment.user_name %}
+                {{ parent_comment.user_name }}
+              {% else %}
+                {{ request.user }}
+              {% endif %}
+              &nbsp;的评论:</label>
+          </h3>
+          <textarea style="resize:none;" class="form-control" rows=6 name="comment" id="input_comment" placeholder="在此输入评论"></textarea>
+        </div>
+          <span style="display: none;">{{ form.honeypot }}</span>
+            {{ form.content_type }}
+            {{ form.object_pk }}
+            {{ form.timestamp }}
+            {{ form.security_hash }}
+            <input type="hidden" name="next" value="{% url 'blog:blog_detail' parent_comment.content_object.id %}" />
+            <input  name="parent_id" type="hidden" value="{{ parent_comment.id }}" />
+            <input  name="level" type="hidden" value="{{ parent_comment.level }}" />
+            <button type="submit" class="btn btn-primary" id="id_submit">评论</button>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <a class="btn btn-primary" href="{% url 'blog:blog_detail' parent_comment.content_object.id %}">暂不评论，返回刚才页面</a>
+      </form>
+    </div>
+  </div>
+
+  {% endif %}
+
+{% endblock %}

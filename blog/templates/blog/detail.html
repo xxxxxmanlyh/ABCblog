@@ -1,0 +1,137 @@
+{% extends 'blog/base.html' %}
+{% load comments %}
+{% load static %}
+
+{% block title %}博客的详细页面{% endblock %}
+
+{% block content %}
+
+      <div class="row">
+
+        <!-- Post Content Column -->
+        <div class="col-lg-8">
+
+          <!-- Title -->
+          <h1 class="mt-4">{{ entry.title }}</h1>
+
+          <!-- Author -->
+          <p class="lead">
+            作者:
+            <a href="abchelper.cc">ABC小助手</a>
+          </p>
+
+          <hr>
+
+          <!-- Date/Time -->
+          <p>发表时间:{{ entry.created_time|date:'Y年m月d日' }}</p>
+
+          <hr>
+            {% if entry.img %}
+          <!-- Preview Image -->
+          <img class="img-fluid rounded" src="{{ entry.img.url }}" alt="">
+            {% endif %}
+          <hr>
+
+          <!-- Post Content -->
+            <p class="lead">
+                <div class="text-center">
+                    <p class="text-center">
+                        {{ entry.body|safe }}
+                    </p>
+                    {% if entry.videourl %}
+                        <div class="img-fluid rounded">
+                        <iframe frameborder="0" src="{{ entry.videourl }}" allowFullScreen="true"  style="width:100%;height: 500px;"></iframe>
+                        </div>
+                        <hr>
+                    {% endif %}
+            </p>
+
+            <div>
+<div>
+      <button class="btn btn-primary" id="js-reward"><i class="fa fa-jpy"
+                                                        aria-hidden="true"></i>
+        ￥如果觉得文章对你有帮助，请随意打赏
+        <i class="fa fa-chevron-down" aria-hidden="true"></i>
+      </button>
+      <div class="flex-left flex-wrap units-gap-big mt-4">
+
+        <div class="unit unit-1-on-mobile flex-center col-md-12">
+          <figure>
+            <img src="/static/blog/images/weixinpay.jpg" alt="微信支付收款二维码"
+                 style="width: 250px">
+            <figcaption class="text-center fs-6 mt-2" style="color: green">微信扫码奖励一瓶可乐吧~</figcaption>
+{#              <img src="/static/blog/images/alipay.jpg" alt="支付宝收款二维码" style="width: 250px">#}
+{#            <figcaption class="text-center fs-6 mt-2 text-primary">支付宝</figcaption>#}
+          </figure>
+
+            </div>
+      </div>
+    </div>
+    <div class="post-tags">
+      <ul class="list-inline">
+
+      </ul>
+    </div>
+  </div>
+
+  <!-- Comments Form -->
+  {% if request.session.is_login %}
+       <div class="card my-4">
+      {% get_comment_form for entry as form %}
+      {% get_comment_count for entry as comment_count %}
+    <h5 class="card-header">目前评论数量：{{ comment_count }}条</h5>
+    <div class="card-body">
+      <form action="{% comment_form_target %}" method="post">
+          {% csrf_token %}
+        <div class="form-group">
+          <label for="input_comment" class="pull-left control-label">评论内容:</label>
+          <textarea style="resize:none;" class="form-control" rows=6 name="comment" id="input_comment" placeholder="在此输入评论" required></textarea>
+        </div>
+          <span style="display: none;">{{ form.honeypot }}</span>
+            {{ form.content_type }}
+            {{ form.object_pk }}
+            {{ form.timestamp }}
+            {{ form.security_hash }}
+            <input type="hidden" name="next" value="{% url 'blog:blog_detail' entry.id %}" />
+            <input  name="parent_id" type="hidden" value="-1" />
+            <input  name="level" type="hidden" value="0" />
+          <button type="submit" class="btn btn-primary" id="id_submit">评论</button>
+
+      </form>
+    </div>
+  </div>
+  {% else %}
+      <h3>需要<a href="{% url 'user:user_login' %}">登录</a>后方可评论,若没有账户可<a href="{% url 'user:user_register' %}">注册</a>一个新账户后评论</h3>
+  {% endif %}
+    <hr>
+         {% for comment in comment_list %}
+            <!-- Single Comment -->
+          <div class="media mb-4" style="margin-left: {{ comment.level }}em;">
+            {% if comment.user_img %}
+                <img class="d-flex mr-3 rounded-circle" src="{{ comment.user_img }}"  alt="">
+            {% else %}
+                <img class="d-flex mr-3 rounded-circle" src="{% static 'blog/images/ABC.jpg' %}" style="width:70px;height:70px;" alt="">
+            {% endif %}
+            <div class="media-body" align="left">
+              <h5 class="mt-0" style="margin-bottom: 10px;">
+                {% if comment.parent_comment %}
+                    {{ comment.user_name }}
+                    &nbsp;回复了&nbsp;
+                    {{ comment.parent_comment.user_name }}
+                {% else %}
+                    {{ comment.user_name }}
+                {% endif %}
+              <h6><em>在{{ comment.submit_date }}评论</em>
+              {% if request.session.is_login %}
+              <a href="{% url 'blog:comment_reply' comment.id %}" >&nbsp;&nbsp;&nbsp;&nbsp;回复</a>
+              {% endif %}
+              </h6>
+              </h5>
+              {{ comment.comment }}
+            </div>
+          </div>
+            {% endfor %}
+        </div>
+        </div>
+{% include 'blog/right_side_bar.html'%}
+{% endblock %}
